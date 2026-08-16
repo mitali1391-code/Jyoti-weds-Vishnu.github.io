@@ -318,3 +318,28 @@ main{position:relative}
 
 /* ---------- Real bride/groom photos — keep faces well-framed in the wreath ---------- */
 .person .wreath img{object-fit:cover;object-position:center 30%}
+
+/* --- Playlist + Opening animations + overlay --- */
+.left-playlist{position:absolute;left:6vw;top:34%;width:220px;background:rgba(255,255,255,0.8);backdrop-filter:blur(4px);padding:14px;border-radius:10px;box-shadow:0 8px 22px rgba(20,20,20,.06);z-index:5}
+.left-playlist h4{margin:0 0 10px;font-weight:600;color:var(--maroon);font-size:13px}
+.left-playlist ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.left-playlist button{width:100%;text-align:left;padding:8px 10px;border-radius:6px;border:1px solid rgba(0,0,0,.04);background:#fff;cursor:pointer;font-size:13px}
+.left-playlist button.active{background:linear-gradient(90deg,var(--gold),#f1c86d);border-color:rgba(0,0,0,.06)}
+
+.interaction-overlay{position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,0);pointer-events:all}
+.audio-holder{position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden}
+
+/* entrance animation applied when main has .opening class */
+.opening .hero-panel{animation:fadeInUp .8s ease both}
+.opening .invocation-panel{animation:fadeInUp .9s ease .25s both}
+.opening .people-grid{animation:fadeInUp .95s ease .45s both}
+.opening .event-list{animation:fadeInUp 1s ease .65s both}
+.opening .venue-copy{animation:fadeInUp 1s ease .85s both}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* reduce page motifs and ornaments during opening */
+.opening .page-ornaments,.opening .hero-motifs{opacity:0.15}
+
+@media(max-width:900px){.left-playlist{display:none}}
+

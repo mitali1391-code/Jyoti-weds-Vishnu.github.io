@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "@/App.css";
 import axios from "axios";
 import { ArrowDown, ArrowUpRight, CalendarDays, Check, ChevronRight, Clock3, Download, Menu, MapPin, Utensils, X } from "lucide-react";
@@ -95,7 +95,52 @@ function RSVP() {
 function Person({ image, name, role, parents, place }) { return <div className="person"><Wreath testId={`person-${name.toLowerCase().replaceAll(" ", "-")}-wreath`}><img src={image} alt={name} data-testid={`person-${name.toLowerCase().replaceAll(" ", "-")}-image`}/></Wreath><h3>{name}</h3><p className="role">{role}</p><p>{parents}</p><small>{place}</small></div>; }
 function Home() {
   const [rsvpOpen, setRsvpOpen] = useState(false);
-  return <main>
+  const [isOpening, setIsOpening] = useState(false);
+  const [animationsDone, setAnimationsDone] = useState(false);
+  const [currentEmbed, setCurrentEmbed] = useState(null);
+  const [currentTrack, setCurrentTrack] = useState(0);
+  const playerRef = useRef(null);
+
+  // Playlist can be extended with more YouTube / SoundCloud embed URLs
+  const playlist = [
+    { title: 'Wedding Song (YouTube)', url: 'https://www.youtube.com/embed/qbR0JTAJbuw' }
+  ];
+
+  function playTrack(index) {
+    const t = playlist[index];
+    if (!t) return;
+    const embed = `${t.url}?autoplay=1&rel=0&iv_load_policy=3`;
+    setCurrentEmbed(embed);
+    setCurrentTrack(index);
+  }
+
+  function openInvitation(e) {
+    e && e.preventDefault && e.preventDefault();
+    if (isOpening) return;
+    // Start opening sequence: music + entrance animations
+    setIsOpening(true);
+    // Autoplay first track; user gesture (click) allows autoplay
+    playTrack(0);
+    // Run entrance animations for ~3.5s then unfreeze interactions
+    const duration = 3500;
+    setTimeout(() => {
+      setIsOpening(false);
+      setAnimationsDone(true);
+      // Scroll to story section after animations
+      const el = document.getElementById('story');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, duration);
+  }
+
+  useEffect(() => {
+    // If animationsDone is set, remove overlay class after a short delay
+    if (animationsDone) {
+      const t = setTimeout(() => setAnimationsDone(false), 1200);
+      return () => clearTimeout(t);
+    }
+  }, [animationsDone]);
+
+  return <main className={isOpening || animationsDone ? 'opening' : ''}>
     <div className="page-ornaments" aria-hidden>
       {["✦","❋","◆","✧","❋","✦","◆","✧","❋","✦"].map((s,i)=><span key={i} className={`po po-${i+1}`}>{s}</span>)}
     </div>
@@ -111,7 +156,22 @@ function Home() {
         </div>
         <p className="hero-kicker" data-testid="hero-kicker">YOU ARE INVITED TO THE WEDDING OF</p>
         <h1 className="hero-names" data-testid="hero-couple-name">Jyoti <span className="amp">&amp;</span> Vishnu</h1>
-        <a href="#story" className="hero-cta" data-testid="hero-scroll-link">OPEN INVITATION</a>
+        <button className="hero-cta" data-testid="hero-open-invitation" onClick={(e)=>openInvitation(e)} disabled={isOpening}>{isOpening ? 'Opening…' : 'OPEN INVITATION'}</button>
+        {/* Playlist in left empty space */}
+        <aside className="left-playlist" aria-hidden={isOpening}>
+          <h4>Playlist</h4>
+          <ul>
+            {playlist.map((t, i) => (
+              <li key={i}>
+                <button className={i === currentTrack ? 'active' : ''} onClick={() => playTrack(i)}>{t.title}</button>
+              </li>
+            ))}
+          </ul>
+        </aside>
+        {/* Interaction blocker while opening animations/music start */}
+        {isOpening && <div className="interaction-overlay" aria-hidden />}
+        {/* Hidden audio iframe (YouTube embed) - created on demand */}
+        {currentEmbed && <div className="audio-holder" aria-hidden><iframe ref={playerRef} title="background-music" src={currentEmbed} allow="autoplay; encrypted-media" style={{width:0,height:0,border:0}}/></div>
       </div>
     </section>
     <section className="invocation section-pad" data-testid="invocation">

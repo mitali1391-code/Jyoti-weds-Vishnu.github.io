@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: wed-backend
+    env: python
+    plan: free
+    repo: https://github.com/mitali1391-code/wed.git
+    branch: main
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    path: backend

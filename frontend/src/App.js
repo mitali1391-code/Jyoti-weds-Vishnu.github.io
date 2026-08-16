@@ -116,21 +116,31 @@ function Home() {
     setCurrentTrack(index);
   }
 
+  // Start background music on first mount (hidden offscreen). Autoplay is attempted; some browsers may block autoplay if not allowed.
+  useEffect(() => {
+    try {
+      const t = playlist[0];
+      if (t) {
+        const embed = `${t.url}?autoplay=1&rel=0&iv_load_policy=3`;
+        setCurrentEmbed(embed);
+      }
+    } catch (err) {
+      // ignore
+    }
+  }, []);
+
   function openInvitation(e) {
-    e && e.preventDefault && e.preventDefault();
+    // don't prevent default so anchor navigation still works — just start the opening sequence
     if (isOpening) return;
     // Start opening sequence: music + entrance animations
     setIsOpening(true);
     // Autoplay first track; user gesture (click) allows autoplay
     playTrack(0);
-    // Run entrance animations for ~3.5s then unfreeze interactions
+    // Run entrance animations for ~3.5s then mark animations done (interactions resume)
     const duration = 3500;
     setTimeout(() => {
       setIsOpening(false);
       setAnimationsDone(true);
-      // Scroll to story section after animations
-      const el = document.getElementById('story');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
     }, duration);
   }
 
@@ -143,7 +153,7 @@ function Home() {
   }, [animationsDone]);
 
   return <main className={isOpening || animationsDone ? 'opening' : ''}>
-    <FlowerAnimation />
+    {(isOpening || animationsDone) && <FlowerAnimation />}
     <div className="page-ornaments" aria-hidden>
       {["✦","❋","◆","✧","❋","✦","◆","✧","❋","✦"].map((s,i)=><span key={i} className={`po po-${i+1}`}>{s}</span>)}
     </div>
@@ -159,22 +169,11 @@ function Home() {
         </div>
         <p className="hero-kicker" data-testid="hero-kicker">YOU ARE INVITED TO THE WEDDING OF</p>
         <h1 className="hero-names" data-testid="hero-couple-name">Jyoti <span className="amp">&amp;</span> Vishnu</h1>
-        <button className="hero-cta" data-testid="hero-open-invitation" onClick={(e)=>openInvitation(e)} disabled={isOpening}>{isOpening ? 'Opening…' : 'OPEN INVITATION'}</button>
-        {/* Playlist in left empty space */}
-        <aside className="left-playlist" aria-hidden={isOpening}>
-          <h4>Playlist</h4>
-          <ul>
-            {playlist.map((t, i) => (
-              <li key={i}>
-                <button className={i === currentTrack ? 'active' : ''} onClick={() => playTrack(i)}>{t.title}</button>
-              </li>
-            ))}
-          </ul>
-        </aside>
+        <a href="#story" className="hero-cta" data-testid="hero-open-invitation" onClick={openInvitation}>{isOpening ? 'Opening…' : 'OPEN INVITATION'}</a>
         {/* Interaction blocker while opening animations/music start */}
         {isOpening && <div className="interaction-overlay" aria-hidden />}
-        {/* Hidden audio iframe (YouTube embed) - created on demand */}
-        {currentEmbed && <div className="audio-holder" aria-hidden><iframe ref={playerRef} title="background-music" src={currentEmbed} allow="autoplay; encrypted-media" style={{width:0,height:0,border:0}}/></div>
+        {/* Hidden audio iframe (YouTube embed) - created on mount to play in background */}
+        {currentEmbed && <div className="audio-holder" aria-hidden><iframe ref={playerRef} title="background-music" src={currentEmbed} allow="autoplay; encrypted-media" style={{width:0,height:0,border:0}}/></div>}
       </div>
     </section>
     <section className="invocation section-pad" data-testid="invocation">

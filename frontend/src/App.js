@@ -93,6 +93,8 @@ function RSVP() {
   </form>;
 }
 function Person({ image, name, role, parents, place }) { return <div className="person"><Wreath testId={`person-${name.toLowerCase().replaceAll(" ", "-")}-wreath`}><img src={image} alt={name} data-testid={`person-${name.toLowerCase().replaceAll(" ", "-")}-image`}/></Wreath><h3>{name}</h3><p className="role">{role}</p><p>{parents}</p><small>{place}</small></div>; }
+import FlowerAnimation from './components/FlowerAnimation';
+
 function Home() {
   const [rsvpOpen, setRsvpOpen] = useState(false);
   const [isOpening, setIsOpening] = useState(false);
@@ -141,6 +143,7 @@ function Home() {
   }, [animationsDone]);
 
   return <main className={isOpening || animationsDone ? 'opening' : ''}>
+    <FlowerAnimation />
     <div className="page-ornaments" aria-hidden>
       {["✦","❋","◆","✧","❋","✦","◆","✧","❋","✦"].map((s,i)=><span key={i} className={`po po-${i+1}`}>{s}</span>)}
     </div>

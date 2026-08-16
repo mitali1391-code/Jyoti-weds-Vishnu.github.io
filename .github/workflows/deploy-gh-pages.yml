@@ -17,21 +17,17 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Enable Corepack (yarn)
-        run: corepack enable
-
-      - name: Install dependencies (frontend)
+      - name: Install dependencies (frontend) with npm
         run: |
           cd frontend
-          corepack prepare yarn@stable --activate
-          yarn install --frozen-lockfile
+          npm ci --legacy-peer-deps
 
       - name: Build frontend
         env:
           REACT_APP_BACKEND_URL: ${{ secrets.REACT_APP_BACKEND_URL }}
         run: |
           cd frontend
-          yarn build
+          npm run build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

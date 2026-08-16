@@ -30,7 +30,7 @@ A. Create a Vercel account and log in: https://vercel.com
 B. Connect your GitHub account to Vercel and import project `mitali1391-code/wed`.
 C. When configuring the project in Vercel:
    - Project Root: `/frontend` (or select the frontend folder)
-   - Build Command: `npm run build` (Vercel will automatically run npm install)
+   - Build Command (recommended to avoid peer-dependency failures): `cd frontend && npm ci --legacy-peer-deps && npm run build`
    - Output Directory: `build`
 D. Add Environment Variable in Vercel (Settings → Environment Variables):
    - Key: REACT_APP_BACKEND_URL
